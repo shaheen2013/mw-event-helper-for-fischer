@@ -46,6 +46,7 @@ class Inspiration_Tracker_Page {
                         <th width="80"><?php esc_html_e('ID', 'mwhp'); ?></th>
                         <th width="200"><?php esc_html_e('Tracker', 'mwhp'); ?></th>
                         <th width="200"><?php esc_html_e('User IP', 'mwhp'); ?></th>
+                        <th width="200"><?php esc_html_e('Browser', 'mwhp'); ?></th>
                         <th><?php esc_html_e('Meta', 'mwhp'); ?></th>
                         <th width="200"><?php esc_html_e('Created At', 'mwhp'); ?></th>
                     </tr>
@@ -57,6 +58,7 @@ class Inspiration_Tracker_Page {
                             $id        = isset($row->id) ? (int) $row->id : (int) ($row['id'] ?? 0);
                             $tracker   = isset($row->tracker) ? (string) $row->tracker_name : (string) ($row['tracker_name'] ?? '');
                             $user_ip   = isset($row->user_ip) ? (string) $row->user_ip : (string) ($row['user_ip'] ?? '');
+                            $browser   = isset($row->browser) ? (string) $row->browser : (string) ($row['browser'] ?? '');
                             $meta_raw  = isset($row->meta) ? $row->meta : ($row['meta'] ?? '');
                             $created   = isset($row->created_at) ? $row->created_at : ($row['created_at'] ?? '');
 
@@ -80,6 +82,7 @@ class Inspiration_Tracker_Page {
                                 <td><?php echo esc_html($count); ?></td>
                                 <td><code><?php echo esc_html($tracker); ?></code></td>
                                 <td><?php echo esc_html($user_ip); ?></td>
+                                <td><?php echo esc_html($browser); ?></td>
                                 <td title="<?php echo esc_attr($meta_preview); ?>">
                                     <span><?php echo esc_html($meta_preview_trim); ?></span>
                                 </td>
@@ -98,6 +101,7 @@ class Inspiration_Tracker_Page {
                         <th><?php esc_html_e('ID', 'mwhp'); ?></th>
                         <th><?php esc_html_e('Tracker', 'mwhp'); ?></th>
                         <th><?php esc_html_e('User IP', 'mwhp'); ?></th>
+                        <th width="200"><?php esc_html_e('Browser', 'mwhp'); ?></th>
                         <th><?php esc_html_e('Meta', 'mwhp'); ?></th>
                         <th><?php esc_html_e('Created At', 'mwhp'); ?></th>
                     </tr>
@@ -108,7 +112,7 @@ class Inspiration_Tracker_Page {
     }
 
     private function track_summary(){
-        $summary =Inspiration_Tracker_Table::get_last_30_days_summary(true);
+        $summary =Inspiration_Tracker_Table::get_last_30_days_summary(false);
         ?>
 
         <div class="mwhp-card-grid" role="region" aria-label="<?php echo esc_attr__('Inspiration tracker summary (last 30 days)', 'mwhp'); ?>">
@@ -119,15 +123,15 @@ class Inspiration_Tracker_Page {
                     <span class="mwhp-pill"><?php esc_html_e('Last 30 days', 'mwhp'); ?></span>
                 </div>
                 <div class="mwhp-kpi" aria-label="<?php esc_attr_e('Unique users who opened the inspirator', 'mwhp'); ?>">
-                    <div class="value"><?php echo esc_html( number_format_i18n( (int)($summary['OPENED']['users'] ?? 0) ) ); ?></div>
-                    <div class="sub"><?php esc_html_e('users', 'mwhp'); ?></div>
+                    <div class="value"><?php echo esc_html( number_format_i18n( (int)($summary['OPENED']['events'] ?? 0) ) ); ?></div>
+                    <div class="sub"><?php esc_html_e('Events', 'mwhp'); ?></div>
                 </div>
                 <div class="hint">
                     <?php
                     printf(
                         /* translators: %s: total events number */
-                        esc_html__('Total events: %s', 'mwhp'),
-                        esc_html( number_format_i18n( (int)($summary['OPENED']['events'] ?? 0) ) )
+                        esc_html__('Total IPs: %s', 'mwhp'),
+                        esc_html( number_format_i18n( (int)($summary['OPENED']['users'] ?? 0) ) )
                     );
                     ?>
                 </div>
@@ -140,14 +144,14 @@ class Inspiration_Tracker_Page {
                     <span class="mwhp-pill"><?php esc_html_e('Last 30 days', 'mwhp'); ?></span>
                 </div>
                 <div class="mwhp-kpi" aria-label="<?php esc_attr_e('Unique users who reached the second product', 'mwhp'); ?>">
-                    <div class="value"><?php echo esc_html( number_format_i18n( (int)($summary['SECOND_PRODUCT']['users'] ?? 0) ) ); ?></div>
-                    <div class="sub"><?php esc_html_e('users', 'mwhp'); ?></div>
+                    <div class="value"><?php echo esc_html( number_format_i18n( (int)($summary['SECOND_PRODUCT']['events'] ?? 0) ) ); ?></div>
+                    <div class="sub"><?php esc_html_e('Events', 'mwhp'); ?></div>
                 </div>
                 <div class="hint">
                     <?php
                     printf(
-                        esc_html__('Total events: %s', 'mwhp'),
-                        esc_html( number_format_i18n( (int)($summary['SECOND_PRODUCT']['events'] ?? 0) ) )
+                        esc_html__('Total IPs: %s', 'mwhp'),
+                        esc_html( number_format_i18n( (int)($summary['SECOND_PRODUCT']['users'] ?? 0) ) )
                     );
                     ?>
                 </div>
@@ -160,14 +164,14 @@ class Inspiration_Tracker_Page {
                     <span class="mwhp-pill"><?php esc_html_e('Last 30 days', 'mwhp'); ?></span>
                 </div>
                 <div class="mwhp-kpi" aria-label="<?php esc_attr_e('Unique users who reached the last product', 'mwhp'); ?>">
-                    <div class="value"><?php echo esc_html( number_format_i18n( (int)($summary['ALL_PRODUCTS']['users'] ?? 0) ) ); ?></div>
-                    <div class="sub"><?php esc_html_e('users', 'mwhp'); ?></div>
+                    <div class="value"><?php echo esc_html( number_format_i18n( (int)($summary['ALL_PRODUCTS']['events'] ?? 0) ) ); ?></div>
+                    <div class="sub"><?php esc_html_e('Events', 'mwhp'); ?></div>
                 </div>
                 <div class="hint">
                     <?php
                     printf(
-                        esc_html__('Total events: %s', 'mwhp'),
-                        esc_html( number_format_i18n( (int)($summary['ALL_PRODUCTS']['events'] ?? 0) ) )
+                        esc_html__('Total IPs: %s', 'mwhp'),
+                        esc_html( number_format_i18n( (int)($summary['ALL_PRODUCTS']['users'] ?? 0) ) )
                     );
                     ?>
                 </div>

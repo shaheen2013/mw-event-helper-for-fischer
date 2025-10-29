@@ -17,6 +17,7 @@ class Inspiration_Tracker_Table {
             id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
             tracker_name ENUM('OPENED','SECOND_PRODUCT','ALL_PRODUCTS') NOT NULL,
             user_ip VARCHAR(45) NOT NULL DEFAULT '',
+            browser VARCHAR(45) NOT NULL DEFAULT '',
             meta LONGTEXT NULL,
             created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY  (id)
@@ -48,14 +49,19 @@ class Inspiration_Tracker_Table {
             ? (is_string($data['meta']) ? $data['meta'] : wp_json_encode($data['meta']))
             : null;
 
+        $browser = isset($data['browser']) ? trim((string) $data['browser']) : '';
+
+        $created_at = current_time('mysql');
         $wpdb->insert(
             $table,
             [
                 'tracker_name' => $tracker,
                 'user_ip'      => $ip,
                 'meta'         => $meta,
+                'browser'         => $browser,
+                'created_at'   => $created_at,
             ],
-            ['%s','%s','%s']
+            ['%s','%s','%s', '%s', '%s']
         );
 
         return (int) $wpdb->insert_id;
@@ -139,10 +145,14 @@ class Inspiration_Tracker_Table {
         global $wpdb;
         $table = $wpdb->prefix . self::$table_name;
 
-        // Use GMT for consistency
-        $to   = gmdate('Y-m-d H:i:s');
-        $from = gmdate('Y-m-d H:i:s', time() - (30 * DAY_IN_SECONDS));
+        $to_date   = gmdate('Y-m-d');
+        $from_date = gmdate('Y-m-d', time() - (30 * DAY_IN_SECONDS));
 
+        // Convert to full-day range
+        $from = $from_date . ' 00:00:00';
+        $to   = $to_date . ' 23:59:59';
+
+        error_log("from: $from, to: $to");
         // Initialize with zeros to ensure keys always exist
         $result = [
             'from' => $from,
@@ -152,7 +162,7 @@ class Inspiration_Tracker_Table {
             'ALL_PRODUCTS' => ['users' => 0, 'events' => 0],
         ];
 
-        // One grouped query: counts for events and distinct users by tracker_name
+        // Grouped by tracker_name, count events and (optionally) distinct users
         $rows = $wpdb->get_results(
             $wpdb->prepare(
                 "
@@ -160,8 +170,7 @@ class Inspiration_Tracker_Table {
                     COUNT(*) AS events,
                     COUNT(DISTINCT user_ip) AS users
                 FROM {$table}
-                WHERE created_at >= %s AND created_at <= %s
-                AND tracker_name IN ('OPENED','SECOND_PRODUCT','ALL_PRODUCTS')
+                WHERE created_at BETWEEN %s AND %s
                 GROUP BY tracker_name
                 ",
                 $from, $to
@@ -172,16 +181,17 @@ class Inspiration_Tracker_Table {
         if (!empty($rows)) {
             foreach ($rows as $row) {
                 $key = $row['tracker_name'];
-                // Safety: only accept allowed tracker keys
                 if (in_array($key, self::$allowed_vals, true)) {
                     $result[$key]['events'] = (int) ($row['events'] ?? 0);
-                    $result[$key]['users']  = $unique ? (int) ($row['users'] ?? 0) : (int) ($row['events'] ?? 0);
+                    $result[$key]['users']  =(int) ($row['users'] ?? 0);
                 }
             }
         }
 
         return $result;
     }
+
+
 
     public static function delete_by_id($id) {
         global $wpdb;
