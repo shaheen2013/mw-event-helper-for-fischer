@@ -72,8 +72,6 @@ class Mwhp_Init {
         if ( ! current_user_can( 'activate_plugins' ) ) {
             return;
         }
-
-        Inspiration_Tracker_Table::drop_table();
         
     }
 

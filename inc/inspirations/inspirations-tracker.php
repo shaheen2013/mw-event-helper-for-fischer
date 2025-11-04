@@ -36,9 +36,12 @@ class Inspirations_Tracker {
             }
         }
 
+        $browser = $this->get_browser_parent();
+
         $id = Inspiration_Tracker_Table::insert([
             'tracker_name' => $tracker,
             'user_ip'      => $ip,
+            'browser'      => $browser,
             'meta'         => $meta,
         ]);
 
@@ -70,5 +73,23 @@ class Inspirations_Tracker {
             }
         }
         return '';
+    }
+
+    private function get_browser_parent() {
+        $agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+
+        if (stripos($agent, 'Chrome') !== false && stripos($agent, 'Edge') === false) {
+            return 'Chrome';
+        } elseif (stripos($agent, 'Firefox') !== false) {
+            return 'Firefox';
+        } elseif (stripos($agent, 'Safari') !== false && stripos($agent, 'Chrome') === false) {
+            return 'Safari';
+        } elseif (stripos($agent, 'Edge') !== false) {
+            return 'Edge';
+        } elseif (stripos($agent, 'MSIE') !== false || stripos($agent, 'Trident') !== false) {
+            return 'Internet Explorer';
+        } else {
+            return 'Unknown';
+        }
     }
 }

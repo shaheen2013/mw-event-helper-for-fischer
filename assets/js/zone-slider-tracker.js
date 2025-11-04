@@ -12,14 +12,12 @@
 
         if ($slider.length === 0 || $slides.length === 0) return;
 
-        // --- Cookie Helpers -----------------------------------------------------
         const COOKIE_PREFIX = "insp_";
-        const COOKIE_DAYS = 30;
 
-        const setCookie = function (name, value, days) {
-            const expires = new Date();
-            expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
-            document.cookie = `${COOKIE_PREFIX + name}=${value}; expires=${expires.toUTCString()}; path=/`;
+        // --- Cookie Helpers -----------------------------------------------------
+        const setCookie = function (name, value) {
+            // Session cookie (auto-deleted when browser closes)
+            document.cookie = `${COOKIE_PREFIX + name}=${value}; path=/; SameSite=Lax`;
         };
 
         const getCookie = function (name) {
@@ -67,7 +65,7 @@
             if (!hasCookie(key)) {
                 console.log("Trigger:", label);
                 sendLog(label, meta);
-                setCookie(key, "1", COOKIE_DAYS);
+                setCookie(key, "1");
             }
         };
 
