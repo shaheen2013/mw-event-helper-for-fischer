@@ -9,5 +9,6 @@ class Admin_Init{
     public function init(){
         Map_Settings::get_instance();
         Inspiration_Tracker_Page::get_instance();
+        Tile_Tier_Settings::get_instance();
     }
 }
