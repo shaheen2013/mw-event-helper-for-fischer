@@ -19,7 +19,7 @@ class Inspirations_Tracker {
         $tracker = isset($_POST['tracker_name']) ? strtoupper(sanitize_text_field($_POST['tracker_name'])) : '';
         $meta    = isset($_POST['meta']) ? wp_unslash($_POST['meta']) : null;
 
-        $allowed = ['OPENED','SECOND_PRODUCT','ALL_PRODUCTS'];
+        $allowed = ['OPENED','SECOND_PRODUCT','ALL_PRODUCTS', 'OPEN_PRODUCT_PAGE', 'USER_LEFT', 'HALF_VIEWED'];
         if (!in_array($tracker, $allowed, true)) {
             wp_send_json_error(['message' => 'Invalid tracker_name'], 400);
         }

@@ -18,7 +18,6 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-
 if( ! defined('MWHP_VERSION') ) define( 'MWHP_VERSION', '1.0.0' );
 if( ! defined('MWHP_PATH_DIR') ) define( 'MWHP_PATH_DIR', plugin_dir_path(__FILE__) );
 if( ! defined('MWHP_PATH_URI') ) define( 'MWHP_PATH_URI', plugin_dir_url(__FILE__) );

@@ -111,11 +111,12 @@ class Inspiration_Tracker_Page {
         <?php
     }
 
-    private function track_summary(){
-        $summary =Inspiration_Tracker_Table::get_last_30_days_summary(false);
+    private function track_summary() {
+        $summary = Inspiration_Tracker_Table::get_last_30_days_summary(false);
         ?>
 
         <div class="mwhp-card-grid" role="region" aria-label="<?php echo esc_attr__('Inspiration tracker summary (last 30 days)', 'mwhp'); ?>">
+
             <!-- OPENED -->
             <div class="mwhp-card">
                 <div class="title">
@@ -129,7 +130,6 @@ class Inspiration_Tracker_Page {
                 <div class="hint">
                     <?php
                     printf(
-                        /* translators: %s: total events number */
                         esc_html__('Total IPs: %s', 'mwhp'),
                         esc_html( number_format_i18n( (int)($summary['OPENED']['users'] ?? 0) ) )
                     );
@@ -176,7 +176,69 @@ class Inspiration_Tracker_Page {
                     ?>
                 </div>
             </div>
+
+            <!-- OPEN_PRODUCT_PAGE -->
+            <div class="mwhp-card">
+                <div class="title">
+                    <?php esc_html_e('Opened Product Page', 'mwhp'); ?>
+                    <span class="mwhp-pill"><?php esc_html_e('Last 30 days', 'mwhp'); ?></span>
+                </div>
+                <div class="mwhp-kpi" aria-label="<?php esc_attr_e('Unique users who opened a product page', 'mwhp'); ?>">
+                    <div class="value"><?php echo esc_html( number_format_i18n( (int)($summary['OPEN_PRODUCT_PAGE']['events'] ?? 0) ) ); ?></div>
+                    <div class="sub"><?php esc_html_e('Events', 'mwhp'); ?></div>
+                </div>
+                <div class="hint">
+                    <?php
+                    printf(
+                        esc_html__('Total IPs: %s', 'mwhp'),
+                        esc_html( number_format_i18n( (int)($summary['OPEN_PRODUCT_PAGE']['users'] ?? 0) ) )
+                    );
+                    ?>
+                </div>
+            </div>
+
+            <!-- HALF_VIEWED -->
+            <div class="mwhp-card">
+                <div class="title">
+                    <?php esc_html_e('Viewed Half of Products', 'mwhp'); ?>
+                    <span class="mwhp-pill"><?php esc_html_e('Last 30 days', 'mwhp'); ?></span>
+                </div>
+                <div class="mwhp-kpi" aria-label="<?php esc_attr_e('Unique users who viewed half of the products', 'mwhp'); ?>">
+                    <div class="value"><?php echo esc_html( number_format_i18n( (int)($summary['HALF_VIEWED']['events'] ?? 0) ) ); ?></div>
+                    <div class="sub"><?php esc_html_e('Events', 'mwhp'); ?></div>
+                </div>
+                <div class="hint">
+                    <?php
+                    printf(
+                        esc_html__('Total IPs: %s', 'mwhp'),
+                        esc_html( number_format_i18n( (int)($summary['HALF_VIEWED']['users'] ?? 0) ) )
+                    );
+                    ?>
+                </div>
+            </div>
+
+            <!-- USER_LEFT -->
+            <div class="mwhp-card">
+                <div class="title">
+                    <?php esc_html_e('User Left Inspirator', 'mwhp'); ?>
+                    <span class="mwhp-pill"><?php esc_html_e('Last 30 days', 'mwhp'); ?></span>
+                </div>
+                <div class="mwhp-kpi" aria-label="<?php esc_attr_e('Unique users who closed or left the popup', 'mwhp'); ?>">
+                    <div class="value"><?php echo esc_html( number_format_i18n( (int)($summary['USER_LEFT']['events'] ?? 0) ) ); ?></div>
+                    <div class="sub"><?php esc_html_e('Events', 'mwhp'); ?></div>
+                </div>
+                <div class="hint">
+                    <?php
+                    printf(
+                        esc_html__('Total IPs: %s', 'mwhp'),
+                        esc_html( number_format_i18n( (int)($summary['USER_LEFT']['users'] ?? 0) ) )
+                    );
+                    ?>
+                </div>
+            </div>
+
         </div>
-    <?php
+        <?php
     }
+
 }

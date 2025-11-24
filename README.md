@@ -31,6 +31,9 @@ A comprehensive WordPress plugin that provides Google Maps integration, business
 - Track user interactions with specific events:
   - `OPENED` - Page/product opened
   - `SECOND_PRODUCT` - User viewed second product
+  - `HALF_VIEWED` - User viewed half of products
+  - `OPEN_PRODUCT_PAGE` - User opened product page
+  - `USER_LEFT` - User left inspiration slide
   - `ALL_PRODUCTS` - User viewed all products
 - IP-based user tracking
 - Metadata storage for additional context

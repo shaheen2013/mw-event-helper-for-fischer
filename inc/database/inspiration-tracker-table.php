@@ -4,9 +4,9 @@ namespace MWHP\Inc\Database;
 
 class Inspiration_Tracker_Table {
     private static $table_name   = 'mw_inspiration_tracker';
-    private static $version      = '1.0.0';
+    private static $version      = '1.0.1';
     private static $option_key   = 'inspiration_tracker_db_version';
-    private static $allowed_vals = ['OPENED', 'SECOND_PRODUCT', 'ALL_PRODUCTS'];
+    private static $allowed_vals = ['OPENED','SECOND_PRODUCT','ALL_PRODUCTS', 'OPEN_PRODUCT_PAGE', 'USER_LEFT', 'HALF_VIEWED'];
 
     private static function create_table() {
         global $wpdb;
@@ -26,6 +26,45 @@ class Inspiration_Tracker_Table {
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         dbDelta($sql);
     }
+
+    /**
+     * Safely alter the tracker_name ENUM column to include new values
+     * without losing existing data.
+     */
+    public static function alter_enum_to_add_new_values() {
+        global $wpdb;
+        $table = $wpdb->prefix . self::$table_name;
+
+        $exists = $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table));
+        if (!$exists) {
+            return false;
+        }
+
+        $column_info = $wpdb->get_row("SHOW COLUMNS FROM {$table} LIKE 'tracker_name'");
+        if (!$column_info || stripos($column_info->Type, 'enum(') === false) {
+            return false;
+        }
+
+        preg_match_all("/'([^']+)'/", $column_info->Type, $matches);
+        $current_values = $matches[1] ?? [];
+
+        $new_values = ['OPEN_PRODUCT_PAGE', 'USER_LEFT', 'HALF_VIEWED'];
+        $merged_values = array_unique(array_merge($current_values, $new_values));
+
+        $enum_list = implode("','", $merged_values);
+
+        $sql = "ALTER TABLE {$table}
+                MODIFY COLUMN tracker_name ENUM('{$enum_list}') NOT NULL";
+
+        $result = $wpdb->query($sql);
+
+        if ($result !== false) {
+            update_option(self::$option_key, self::$version);
+            return true;
+        }
+        return false;
+    }
+
 
     /**
      * Insert a row.
@@ -152,17 +191,17 @@ class Inspiration_Tracker_Table {
         $from = $from_date . ' 00:00:00';
         $to   = $to_date . ' 23:59:59';
 
-        error_log("from: $from, to: $to");
-        // Initialize with zeros to ensure keys always exist
-        $result = [
+         $result = [
             'from' => $from,
             'to'   => $to,
-            'OPENED' => ['users' => 0, 'events' => 0],
-            'SECOND_PRODUCT' => ['users' => 0, 'events' => 0],
-            'ALL_PRODUCTS' => ['users' => 0, 'events' => 0],
+            'OPENED'            => ['users' => 0, 'events' => 0],
+            'SECOND_PRODUCT'    => ['users' => 0, 'events' => 0],
+            'ALL_PRODUCTS'      => ['users' => 0, 'events' => 0],
+            'OPEN_PRODUCT_PAGE' => ['users' => 0, 'events' => 0],
+            'USER_LEFT'         => ['users' => 0, 'events' => 0],
+            'HALF_VIEWED'       => ['users' => 0, 'events' => 0],
         ];
 
-        // Grouped by tracker_name, count events and (optionally) distinct users
         $rows = $wpdb->get_results(
             $wpdb->prepare(
                 "
@@ -216,6 +255,7 @@ class Inspiration_Tracker_Table {
         $installed = get_option(self::$option_key, '0.0.0');
         if ($installed !== self::$version) {
             self::create_table();
+            self::alter_enum_to_add_new_values();
             update_option(self::$option_key, self::$version);
         }
     }
